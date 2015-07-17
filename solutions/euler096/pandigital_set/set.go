@@ -30,6 +30,15 @@ func (set *PandigitalSet) UnknownCount() int {
   return count
 }
 
+func (set *PandigitalSet) KnownDigitMask() int {
+  var known int
+  for _, value := range set.Members {
+    if *value == 0 { continue }
+    known = known | (1 << uint(*value))
+  }
+  return known
+}
+
 func (set *PandigitalSet) Resolve() {
   if set.UnknownCount() != 1 { return }
 

@@ -1,17 +1,18 @@
-package sudoku
+package euler096
 
-import (
+import(
   "fmt"
-  "github.com/tdg5/hackerrank/solutions/euler096/pandigital_set"
-  "github.com/tdg5/hackerrank/solutions/euler096/cell"
+  "bufio"
+  "os"
+  "strconv"
 )
 
 type Sudoku struct {
   values [81] int
-  cells [81] cell.Cell
-  rows [9] pandigital_set.PandigitalSet
-  columns [9] pandigital_set.PandigitalSet
-  squares [9] pandigital_set.PandigitalSet
+  cells [81] Cell
+  rows [9] PandigitalSet
+  columns [9] PandigitalSet
+  squares [9] PandigitalSet
 }
 
 func (sudoku *Sudoku) Inspect() {
@@ -119,4 +120,100 @@ func (sudoku Sudoku) String() string {
     str += fmt.Sprintf("%v", sudoku.rows[yOffset])
   }
   return str
+}
+type PandigitalSet struct {
+  Members [9] *int
+  size int
+}
+
+func (set *PandigitalSet) Add(value *int) {
+  set.Members[set.size] = value
+  set.size++
+}
+
+func (set PandigitalSet) String() string {
+  str := ""
+  for _, value := range set.Members {
+    str += fmt.Sprintf("%d", *value)
+  }
+  return str
+}
+
+func (set *PandigitalSet) UnknownCount() int {
+  count := 0
+  for _, value := range set.Members {
+    if *value == 0 { count++ }
+  }
+  return count
+}
+
+func (set *PandigitalSet) KnownDigitMask() int {
+  var known int
+  for _, value := range set.Members {
+    if *value == 0 { continue }
+    known = known | (1 << uint(*value))
+  }
+  return known
+}
+
+func (set *PandigitalSet) Resolve() {
+  if set.UnknownCount() != 1 { return }
+
+  missingDigit := 45
+  var zeroIndex int
+  for index, value := range set.Members {
+    if *value == 0 {
+      zeroIndex = index
+    } else {
+      missingDigit -= *value
+    }
+  }
+  *set.Members[zeroIndex] = missingDigit
+}
+
+func Parse() (values [81]int) {
+  scanner := bufio.NewScanner(os.Stdin)
+  scanner.Split(bufio.ScanRunes)
+  var output [81]int
+  count := 0
+  for scanner.Scan() {
+    if scanner.Text() == "\n" {
+      continue
+    }
+
+    value, err := strconv.Atoi(scanner.Text())
+    if err != nil {
+      fmt.Println(err)
+      os.Exit(2)
+    }
+    output[count] = value
+    count++
+  }
+  return output
+}
+
+type Cell struct {
+  Column *PandigitalSet
+  Row *PandigitalSet
+  Square *PandigitalSet
+  Value *int
+}
+
+func (cell *Cell) Resolve() {
+  if *cell.Value != 0 { return }
+  unavailable := cell.Row.KnownDigitMask() | cell.Column.KnownDigitMask() | cell.Square.KnownDigitMask()
+  availableCount := 0
+  solo := 0
+  for val := 1; val < 10; val++ {
+    bin := 1 << uint(val)
+    if unavailable & bin != bin {
+      availableCount++
+      solo = val
+    }
+  }
+  if availableCount != 1 { return }
+  *cell.Value = solo
+  cell.Row.Resolve()
+  cell.Column.Resolve()
+  cell.Square.Resolve()
 }
