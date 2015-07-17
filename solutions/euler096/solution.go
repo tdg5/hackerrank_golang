@@ -2,8 +2,8 @@ package main
 
 import (
   "fmt"
-	"github.com/tdg5/hackerrank/solutions/euler096/parser"
-	"github.com/tdg5/hackerrank/solutions/euler096/sudoku"
+  "github.com/tdg5/hackerrank/solutions/euler096/parser"
+  "github.com/tdg5/hackerrank/solutions/euler096/sudoku"
 )
 
 func main() {
