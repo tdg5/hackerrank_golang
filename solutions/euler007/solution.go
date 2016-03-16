@@ -23,7 +23,7 @@ func main() {
 			os.Exit(2)
 		}
 
-		prime := ordinator.Ordinal(ordinal)
+		prime := ordinator.Ordinal(uint(ordinal))
 		fmt.Println(prime)
 	}
 }
