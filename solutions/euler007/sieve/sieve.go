@@ -50,12 +50,12 @@ func (sieve *sieve) scanUntil(ordinal uint) {
 }
 
 func (sieve *sieve) checkNext() {
-	for sieve.windowOffset < uint(sieve.window.Len()) {
+	for sieve.cursorIndex < sieve.windowSize {
 		if !sieve.window.Test(sieve.windowOffset) {
-			sieve.windowOffset++
+			sieve.cursorIndex++
 			continue
 		}
-		(*sieve.primes)[sieve.primeCount] = uint(sieve.windowOffset)
+		(*sieve.primes)[sieve.primeCount] = sieve.windowOffset
 		sieve.primeCount++
 	}
 }
