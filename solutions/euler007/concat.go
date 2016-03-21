@@ -1,11 +1,27 @@
-package sieve
+package main
 
 import (
-	//"fmt"
-	"github.com/willf/bitset"
+	"bufio"
+	"fmt"
+	"os"
+	"strconv"
 )
 
+type Ordinator interface {
+	Ordinal(ordinal uint) uint
+}
+
 const DefaultWindowSize = 10000
+
+type sieve struct {
+	cursorIndex  uint
+	primes       []uint
+	primeCount   uint
+	window       []bool
+	windowOffset uint
+	windowSize   uint
+	windowSpan   uint
+}
 
 func New(windowSize uint) *sieve {
 	instance := new(sieve)
@@ -16,16 +32,6 @@ func New(windowSize uint) *sieve {
 	}
 	instance.initialize()
 	return instance
-}
-
-type sieve struct {
-	cursorIndex  uint
-	primes       []uint
-	primeCount   uint
-	window       *bitset.BitSet
-	windowOffset uint
-	windowSize   uint
-	windowSpan   uint
 }
 
 func (sieve *sieve) Ordinal(ordinal uint) uint {
@@ -62,7 +68,7 @@ func (sieve *sieve) applyPrime(prime uint) {
 	}
 	applicationIndex := (applicationValue - sieve.windowOffset) / 2
 	for applicationIndex < sieve.windowSize {
-		sieve.window.Clear(applicationIndex)
+		sieve.window[applicationIndex] = false
 		applicationIndex += prime
 	}
 }
@@ -72,7 +78,7 @@ func (sieve *sieve) cursorValue() uint {
 }
 
 func (sieve *sieve) findNext() {
-	for !sieve.window.Test(sieve.cursorIndex) {
+	for !sieve.window[sieve.cursorIndex] {
 		sieve.advanceCursor()
 	}
 	prime := sieve.cursorValue()
@@ -84,7 +90,7 @@ func (sieve *sieve) findNext() {
 
 func (sieve *sieve) initialize() {
 	sieve.primes = []uint{2}
-	sieve.window = bitset.New(sieve.windowSize)
+	sieve.window = make([]bool, sieve.windowSize)
 	sieve.windowSpan = sieve.windowSize * 2
 	sieve.primeCount = 1
 	sieve.shiftWindow(3)
@@ -92,9 +98,28 @@ func (sieve *sieve) initialize() {
 
 func (sieve *sieve) shiftWindow(offset uint) {
 	for i := uint(0); i < sieve.windowSize; i++ {
-		sieve.window.Set(i)
+		sieve.window[i] = true
 	}
 	sieve.windowOffset = offset
 	sieve.cursorIndex = uint(0)
 	sieve.applyKnownPrimes()
+}
+
+func main() {
+	var ordinator Ordinator
+	ordinator = New(0)
+	scanner := bufio.NewScanner(os.Stdin)
+	// Scan once to skip the test case count
+	scanner.Scan()
+
+	for scanner.Scan() {
+		ordinal, err := strconv.Atoi(scanner.Text())
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(2)
+		}
+
+		prime := ordinator.Ordinal(uint(ordinal))
+		fmt.Println(prime)
+	}
 }
