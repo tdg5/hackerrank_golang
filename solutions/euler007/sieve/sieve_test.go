@@ -4,46 +4,6 @@ import (
 	"testing"
 )
 
-func TestNewWithDefaultWindowSize(t *testing.T) {
-	subject := *New(0)
-	if subject.windowSize != DefaultWindowSize {
-		t.Errorf("sieve.New(0).windowSize != %i", DefaultWindowSize)
-	}
-}
-
-func TestNewWithExplicitWindowSize(t *testing.T) {
-	windowSize := uint(100)
-	subject := *New(windowSize)
-	if subject.windowSize != windowSize {
-		t.Errorf("sieve.New(%d).windowSize != %d", windowSize, windowSize)
-	}
-}
-
-func TestNewInitialization(t *testing.T) {
-	subject := *New(0)
-	if subject.primes[0] != 2 {
-		t.Error("sieve.New().primeSlice[0] != 2")
-	}
-	if subject.primeCount != 1 {
-		t.Error("sieve.New().primeCount != 1")
-	}
-	if subject.windowOffset != 3 {
-		t.Error("sieve.New().windowOffset != 3")
-	}
-	if !subject.window.Test(0) {
-		t.Error("sieve.New().window.Test(0) == false")
-	}
-	if subject.window.Len() != subject.windowSize {
-		t.Error("sieve.New(windowSize).window.Len() != windowSize")
-	}
-	if subject.cursorIndex != 0 {
-		t.Error("sieve.New().cursorIndex != 0")
-	}
-	if subject.windowSpan != subject.windowSize*2 {
-		t.Error("sieve.New(windowSpan).windowSpan != windowSpan * 2")
-	}
-}
-
 func TestOrdinalOf0(t *testing.T) {
 	subject := *New(0)
 	ord := subject.Ordinal(0)
@@ -86,10 +46,9 @@ func TestOrdinalOf10001(t *testing.T) {
 	}
 }
 
-func TestCursorValue(t *testing.T) {
-	subject := *New(0)
-	cursorVal := subject.cursorValue()
-	if cursorVal != 3 {
-		t.Errorf("sieve.New().cursorValue() == %d, expected 3", cursorVal)
+func BenchmarkOrdinalOf10001(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		subject := *New(0)
+		subject.Ordinal(10001)
 	}
 }
