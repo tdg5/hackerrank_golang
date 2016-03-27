@@ -30,6 +30,9 @@ func (sudoku *Sudoku) Load(values [81]int) {
 
 func (sudoku *Sudoku) Resolve() {
 	for sudoku.UnknownCount() != 0 {
+		for index := 0; index < len(sudoku.values); index++ {
+			sudoku.values[index].Resolve()
+		}
 		for index := 0; index < len(sudoku.sets); index++ {
 			sudoku.sets[index].Resolve()
 		}

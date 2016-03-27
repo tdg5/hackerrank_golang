@@ -34,6 +34,24 @@ func (set *PandigitalSet) Resolve() bool {
 	return true
 }
 
+func (set *PandigitalSet) MissingDigits() []int {
+	digits := [9]bool{true, true, true, true, true, true, true, true, true}
+	for index := 0; index < set.size; index++ {
+		val := set.Members[index].Value
+		if val == 0 {
+			continue
+		}
+		digits[val-1] = false
+	}
+	missingDigits := make([]int, 0)
+	for index := 0; index < len(digits); index++ {
+		if digits[index] == true {
+			missingDigits = append(missingDigits, index+1)
+		}
+	}
+	return missingDigits
+}
+
 func (set *PandigitalSet) String() string {
 	str := ""
 	for index := 0; index < set.size; index++ {
